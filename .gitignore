@@ -2,3 +2,7 @@
 /BackEnd/Properties/launchSettings.json
 /BackEnd/bin
 /secrets.json
+/FrontEnd/obj
+/FrontEnd/log
+Debug
+obj

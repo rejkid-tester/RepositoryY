@@ -192,3 +192,4 @@ C:\RepositoryY\BackEnd\obj\Debug\net10.0\BackEnd.genruntimeconfig.cache
 C:\RepositoryY\BackEnd\obj\Debug\net10.0\ref\BackEnd.dll
 C:\RepositoryY\BackEnd\obj\Debug\net10.0\BackEnd.sourcelink.json
 C:\RepositoryY\BackEnd\bin\Debug\net10.0\Properties\launchSettings.json
+C:\RepositoryY\BackEnd\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
