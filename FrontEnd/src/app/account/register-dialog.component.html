@@ -1,0 +1,63 @@
+@if (visible) {
+  <div class="rd-overlay">
+    <div class="rd-modal">
+      <div class="rd-header">
+        <h3>Create an account</h3>
+        <p class="rd-sub">Join now — it's quick and easy</p>
+      </div>
+        <form (ngSubmit)="onRegister()" #regForm="ngForm" class="rd-form">
+          @if (loading) {
+            <div class="rd-loading-overlay">
+              <div class="spinner" aria-hidden="true"></div>
+            </div>
+          }
+        <label>Title</label>
+          <select name="title" [(ngModel)]="payload.title" [disabled]="loading" class="rd-input">
+          <option value="">Select</option>
+          <option value="Mr">Mr</option>
+          <option value="Mrs">Mrs</option>
+          <option value="Miss">Miss</option>
+          <option value="Ms">Ms</option>
+        </select>
+        <div class="rd-grid">
+          <div>
+            <label for="firstName">First Name</label>
+              <input id="firstName" name="firstName" type="text" class="rd-input" [(ngModel)]="payload.firstName" required [disabled]="loading" />
+          </div>
+          <div>
+            <label for="lastName">Last Name</label>
+              <input id="lastName" name="lastName" type="text" class="rd-input" [(ngModel)]="payload.lastName" required [disabled]="loading" />
+          </div>
+        </div>
+        <label for="phoneNumber">Phone</label>
+          <input id="phoneNumber" name="phoneNumber" type="tel" class="rd-input" [(ngModel)]="payload.phoneNumber" required [disabled]="loading" />
+        <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" class="rd-input" [(ngModel)]="payload.email" required [disabled]="loading" />
+        <label for="dob">DOB</label>
+          <input id="dob" name="dob" type="date" class="rd-input" [(ngModel)]="payload.dob" required [disabled]="loading" />
+        <label for="password">Password</label>
+          <input id="password" name="password" type="password" class="rd-input" [(ngModel)]="payload.password" required [disabled]="loading" />
+          <label for="confirmPassword">Confirm Password</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" class="rd-input" [(ngModel)]="payload.confirmPassword" required [disabled]="loading" />
+          <label class="rd-terms">
+            <input name="acceptTerms" type="checkbox" [(ngModel)]="payload.acceptTerms" [disabled]="loading" /> I accept the terms
+          </label>
+        @if (successMessage) {
+          <div class="rd-success">{{ successMessage }}</div>
+        }
+        @if (errorMessage) {
+          <div class="rd-error">{{ errorMessage }}</div>
+        }
+        <div class="rd-actions">
+          @if (successMessage) {
+            <button type="button" class="btn-primary" (click)="onCancel()">Close</button>
+          }
+          @if (!successMessage) {
+            <button type="button" class="btn-secondary" (click)="onCancel()" [disabled]="loading">Cancel</button>
+            <button type="submit" class="btn-primary" [disabled]="!regForm.form.valid || loading">{{ loading ? 'Registering...' : 'Register' }}</button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+}

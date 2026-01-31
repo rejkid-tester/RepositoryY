@@ -1,0 +1,12 @@
+@if (me; as user) {
+  Logged in as: <strong>{{ user.displayName }}</strong>
+  @if (user.email) {
+    <div>Email: {{ user.email }}</div>
+  }
+} @else {
+  @if (error) {
+    <div>{{ error }}</div>
+  } @else {
+    <div>Loading...</div>
+  }
+}

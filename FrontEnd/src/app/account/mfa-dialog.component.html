@@ -1,0 +1,33 @@
+@if (visible) {
+  <div class="mfa-overlay">
+    <div class="mfa-modal">
+      <div class="mfa-header">
+        <h3>Verify your identity</h3>
+        <p class="mfa-sub">A verification code was sent to your phone via SMS.</p>
+      </div>
+      <div class="mfa-body">
+        <label for="mfaCode">Enter 6-digit code</label>
+        <input 
+          #codeInput
+          id="mfaCode" 
+          name="mfaCode" 
+          type="text" 
+          class="mfa-input" 
+          [(ngModel)]="code" 
+          [disabled]="loading"
+          maxlength="6"
+          placeholder="000000"
+          autocomplete="off"
+          (keydown.enter)="onVerify()" />
+        @if (error) {
+          <div class="mfa-error">{{ error }}</div>
+        }
+        <p class="mfa-hint">Code expires in 5 minutes. If you didn't receive it, please try logging in again.</p>
+      </div>
+      <div class="mfa-actions">
+        <button class="btn-secondary" type="button" (click)="onCancel()" [disabled]="loading">Cancel</button>
+        <button class="btn-primary" type="button" (click)="onVerify()" [disabled]="loading || code.length !== 6">Verify</button>
+      </div>
+    </div>
+  </div>
+}

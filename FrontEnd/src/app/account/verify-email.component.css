@@ -1,0 +1,65 @@
+.ve-overlay {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: transparent;
+}
+
+.ve-modal {
+  background: #fff;
+  width: 380px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.22);
+  position: relative;
+}
+
+.ve-header {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(90deg,#6a11cb 0%,#2575fc 100%);
+  color: #fff;
+}
+.ve-header h3 { margin:0; font-weight:600 }
+.ve-header .ve-sub { margin:0.25rem 0 0; font-size:0.92rem; opacity:0.95 }
+
+.ve-body { padding: 1rem 1.25rem; }
+.ve-state { text-align: center; padding: 1rem 0 }
+.ve-icon { font-size: 3rem; margin-bottom: 0.5rem }
+.ve-state h4 { margin:0.25rem 0 0.5rem; font-size:1.1rem; color:#222 }
+.ve-state p { color:#555; margin:0 0 1rem; line-height:1.5 }
+
+.ve-actions { display:flex; justify-content:center; gap:0.6rem }
+
+.btn-primary { background: linear-gradient(90deg,#6a11cb,#2575fc); color:#fff; border:none; padding:0.55rem 0.9rem; border-radius:6px; cursor:pointer; font-weight:600; box-shadow: 0 6px 18px rgba(37,117,252,0.25); }
+.btn-primary[disabled] { opacity:0.7; cursor:default; box-shadow:none; }
+.btn-secondary { background:transparent; border:1px solid #d6dbe8; padding:0.45rem 0.8rem; border-radius:6px; cursor:pointer }
+
+.ve-success p { color:#155724 }
+.ve-error p { color:#721c24 }
+
+.ve-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.fp-spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 5px solid rgba(0,0,0,0.08);
+  border-top-color: #2575fc;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+@media (max-width: 420px) {
+  .ve-modal { width: 92%; }
+}

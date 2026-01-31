@@ -1,0 +1,36 @@
+@if (visible) {
+  <div class="lp-overlay">
+    <div class="lp-modal">
+      <div class="lp-header">
+        <h3>Welcome back</h3>
+        <p class="lp-sub">Sign in to continue</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="lp-form">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" class="lp-input" [(ngModel)]="login.email" required />
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" class="lp-input" [(ngModel)]="login.password" required />
+
+        @if (errorMessage) {
+        <div class="lp-error">{{ errorMessage }}</div>
+        }
+
+        <div class="lp-actions">
+          <button type="submit" class="btn-primary" [disabled]="loading">{{ loading ? 'Signing in...' : 'Sign in' }}</button>
+          <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
+        </div>
+
+        <div class="lp-secondary-actions">
+          <button type="button" class="link-btn" (click)="onForgotPassword()">Forgot password?</button>
+          <button type="button" class="link-btn" (click)="onRegister()">Register</button>
+        </div>
+      </form>
+      <app-mfa-dialog [visible]="showMfa"
+        (verify)="onMfaVerify($event)" 
+        (cancelled)="onMfaCancelled()">
+      </app-mfa-dialog>
+    </div>
+  </div>
+}

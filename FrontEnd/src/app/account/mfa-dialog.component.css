@@ -1,0 +1,25 @@
+.mfa-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+.mfa-modal {
+  background: #fff;
+  padding: 20px;
+  border-radius: 6px;
+  width: 320px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+.mfa-header h3 { margin: 0 0 6px 0; }
+.mfa-sub { margin: 0 0 12px 0; color: #666; font-size: 0.9em }
+.mfa-input { width: 100%; padding: 8px; margin: 6px 0 10px 0; box-sizing: border-box }
+.mfa-actions { display:flex; gap:8px; justify-content: flex-end }
+.mfa-resend { margin-top: 8px; text-align: right }
+.mfa-error { color: #b00020; margin-bottom: 6px }

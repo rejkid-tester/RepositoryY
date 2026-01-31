@@ -1,0 +1,41 @@
+{
+  "name": "frontend",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --host=0.0.0.0 --configuration development",
+    "prebuild": "powershell  if (Test-Path -Path ./dist) {Remove-Item -Path ./dist/* -Recurse -Force}  && powershell if (Test-Path -Path C:\\inetpub\\wwwroot\\FrontEnd) {Remove-Item -Path C:\\inetpub\\wwwroot\\FrontEnd -Recurse -Force}",
+    "build": "ng build --configuration development --aot --base-href /",
+    "postbuild": "powershell New-Item -ItemType Directory -Path 'C:\\inetpub\\wwwroot\\FrontEnd' && powershell ; && icacls \"C:\\inetpub\\wwwroot\\FrontEnd\" /grant \"IIS_IUSRS:(RX)\" /T  && powershell Copy-Item -Path ./dist/frontend/browser/* -Destination 'C:/inetpub/wwwroot/FrontEnd/' -Recurse -Force",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^21.0.6",
+    "@angular/common": "^21.0.6",
+    "@angular/compiler": "^21.0.6",
+    "@angular/core": "^21.0.6",
+    "@angular/forms": "^21.0.6",
+    "@angular/material": "^21.0.5",
+    "@angular/platform-browser": "^21.0.6",
+    "@angular/platform-browser-dynamic": "^21.0.6",
+    "@angular/router": "^21.0.6",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.15.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.0.4",
+    "@angular/cli": "^21.0.4",
+    "@angular/compiler-cli": "^21.0.6",
+    "@types/jasmine": "~5.1.0",
+    "jasmine-core": "~5.4.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "typescript": "~5.9.3"
+  }
+}

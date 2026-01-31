@@ -1,0 +1,59 @@
+<div class="mfa-settings">
+  <h3>Two-Factor Authentication</h3>
+  <p class="mfa-description">Add an extra layer of security to your account by requiring a verification code sent to your phone.</p>
+  
+  @if (!mfaEnabled) {
+    <div class="mfa-enable-section">
+      <h4>Enable MFA</h4>
+      <form (ngSubmit)="onEnableMfa()">
+        <div class="form-group">
+          <label for="phoneNumber">Phone Number</label>
+          <input 
+            id="phoneNumber" 
+            name="phoneNumber"
+            type="tel" 
+            [(ngModel)]="phoneNumber" 
+            placeholder="+61412345678"
+            class="form-control"
+            required />
+          <small class="form-hint">Include country code (e.g., +61 for Australia, +1 for USA)</small>
+        </div>
+        
+        @if (message) {
+          <div class="alert alert-success">{{ message }}</div>
+        }
+        
+        @if (error) {
+          <div class="alert alert-error">{{ error }}</div>
+        }
+        
+        <button type="submit" class="btn-primary" [disabled]="loading">
+          {{ loading ? 'Enabling...' : 'Enable MFA' }}
+        </button>
+      </form>
+    </div>
+  }
+  
+  @if (mfaEnabled) {
+    <div class="mfa-enabled-section">
+      <div class="status-badge success">
+        <span class="icon">✓</span>
+        <span>Two-factor authentication is enabled</span>
+      </div>
+      
+      <p class="mfa-info">You will receive a verification code via SMS each time you log in.</p>
+      
+      @if (message) {
+        <div class="alert alert-success">{{ message }}</div>
+      }
+      
+      @if (error) {
+        <div class="alert alert-error">{{ error }}</div>
+      }
+      
+      <button class="btn-danger" (click)="onDisableMfa()" [disabled]="loading">
+        {{ loading ? 'Disabling...' : 'Disable MFA' }}
+      </button>
+    </div>
+  }
+</div>

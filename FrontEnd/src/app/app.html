@@ -1,0 +1,42 @@
+<header class="top-nav" role="banner">
+  <div class="nav-container">
+    <a class="brand" routerLink="/" aria-label="Go to home">
+      <span class="brand-mark" aria-hidden="true">◆</span>
+      <span class="brand-text">{{ title }}</span>
+      <span class="brand-sub">Secure workspace</span>
+    </a>
+
+    @if (isLoggedIn || showShell) {
+    <nav class="nav-primary" aria-label="Primary">
+      <ul class="nav-links">
+        <li><a routerLink="/profile" routerLinkActive="active">Profile</a></li>
+        <li><a routerLink="/users" routerLinkActive="active">Users</a></li>
+        <li><a routerLink="/about" routerLinkActive="active">About</a></li>
+        <li><a routerLink="/help" routerLinkActive="active">Help</a></li>
+      </ul>
+    </nav>
+    }
+
+    @if (isLoggedIn) {
+    <div class="nav-actions">
+      <button class="btn-ghost" type="button" (click)="logout()">Log out</button>
+    </div>
+    }
+  </div>
+</header>
+
+<main class="content" id="main">
+  <div class="content-container">
+    <router-outlet></router-outlet>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-container">
+    <p>© 2026 {{ title }}. All rights reserved.</p>
+    <div class="footer-links">
+      <a routerLink="/about">About</a>
+      <a routerLink="/help">Help</a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,46 @@
+<div class="ve-overlay">
+  <div class="ve-modal">
+    <div class="ve-header">
+      <h3>Verify Email</h3>
+      <p class="ve-sub">We're confirming your email address</p>
+    </div>
+
+    @if (loading) {
+      <div class="ve-loading-overlay" aria-hidden="true">
+        <div class="fp-spinner" role="status" aria-label="Loading"></div>
+      </div>
+    }
+
+    <div class="ve-body">
+      @if (loading) {
+        <div class="ve-state ve-loading">
+          <div class="ve-icon">✉️</div>
+          <h4>Verifying Your Email</h4>
+          <p>Please wait while we confirm your email address.</p>
+        </div>
+      }
+
+      @if (!loading && success) {
+        <div class="ve-state ve-success">
+          <div class="ve-icon">✅</div>
+          <h4>Email Verified!</h4>
+          <p>{{ message }}</p>
+          <div class="ve-actions">
+            <button (click)="gotoLogin()" class="btn-primary">Continue to Login</button>
+          </div>
+        </div>
+      }
+
+      @if (!loading && !success) {
+        <div class="ve-state ve-error">
+          <div class="ve-icon">❌</div>
+          <h4>Verification Failed</h4>
+          <p>{{ message }}</p>
+          <div class="ve-actions">
+            <button (click)="gotoLogin()" class="btn-secondary">Go to Login</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

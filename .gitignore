@@ -1,0 +1,4 @@
+/.vs
+/BackEnd/Properties/launchSettings.json
+/BackEnd/bin
+/secrets.json
