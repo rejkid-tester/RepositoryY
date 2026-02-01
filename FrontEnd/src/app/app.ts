@@ -27,6 +27,18 @@ export class App implements OnInit, OnDestroy {
     try { this.syncLoginState(); } catch {}
     try { this.updateShellVisibility(); } catch {}
 
+    // React to login/logout events from UserService so header shows correctly
+    this.subscriptions.add(
+      this.userService.token.subscribe((t) => {
+        try {
+          this.isLoggedIn = !!t?.accessToken && this.tokenService.isLoggedIn();
+          if (this.isLoggedIn) {
+            try { this.modalService.hideLogin(); } catch {}
+          }
+        } catch {}
+      })
+    );
+
     this.subscriptions.add(
       this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event) => {
         const navEnd = event as NavigationEnd;

@@ -22,7 +22,7 @@ import { appInitializer } from './helpers/app.initializer';
   providers: [
     provideHttpClient(withInterceptorsFromDi()),
     AuthInterceptorProvider,
-    //provideAppInitializer(appInitializer),
+    provideAppInitializer(appInitializer),
   ],
   bootstrap: [App]
 })

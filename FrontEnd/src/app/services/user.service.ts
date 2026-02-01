@@ -55,8 +55,8 @@ export class UserService {
         // If server returned a token, set up session side-effects
         if ((resp as any)?.accessToken) {
           const token = resp as TokenResponse;
-          this.tokenSubject.next(token);
           try { this.tokenService.saveSession(token); } catch { }
+          this.tokenSubject.next(token);
           this.startRefreshTokenTimer();
         }
       }));
@@ -66,8 +66,8 @@ export class UserService {
   verifyMfa(email: string, code: string): Observable<TokenResponse> {
     return this.http.post<TokenResponse>(`${BASE_URL}/verify-mfa`, { email, code }, { withCredentials: true })
       .pipe(tap(token => {
-        this.tokenSubject.next(token);
         try { this.tokenService.saveSession(token); } catch { }
+        this.tokenSubject.next(token);
         this.startRefreshTokenTimer();
       }));
   }
@@ -133,8 +133,8 @@ export class UserService {
           userId: tokenResponse.userId ?? current.userId ?? 0,
           refreshToken: ''
         };
-        this.tokenSubject.next(merged);
         try { this.tokenService.saveSession(merged); } catch { }
+        this.tokenSubject.next(merged);
         this.startRefreshTokenTimer();
         return merged;
       }));
