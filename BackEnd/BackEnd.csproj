@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>78d17769-b449-450e-9bba-e6f3c52cb09d</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +33,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.4.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.4.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
     <PackageReference Include="NLog" Version="6.0.7" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.*" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />

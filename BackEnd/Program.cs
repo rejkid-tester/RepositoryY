@@ -78,7 +78,7 @@ try
     // global cors policy
     app.UseCors(x => x
 
-        .WithOrigins("http://localhost:4200", "http://192.168.0.15")
+        .WithOrigins("http://172.20.5.149", "http://172.20.5.150")
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
