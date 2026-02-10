@@ -10,3 +10,4 @@ scripts
 !scripts/
 scripts/export-secrets.sh
 !scripts/export-secrets.template.sh
+*.user
