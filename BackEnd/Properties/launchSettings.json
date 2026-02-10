@@ -28,7 +28,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_URLS": "https://192.168.0.15:5001"
       },
-      "dotnetRunMessages": false,
+      "dotnetRunMessages": true
       "applicationUrl": "https://192.168.0.15:5001"
     },
     "Container (Dockerfile)": {
