@@ -45,8 +45,29 @@ try
 
     // Required for TokenService/UserService (UserDbContext)
     // Note: ensure you have a connection string named "DefaultConnection" in appsettings.json/user-secrets.
+    var tasksDbConnectionString = builder.Configuration.GetConnectionString("TasksDbConnectionString");
+    if (string.IsNullOrWhiteSpace(tasksDbConnectionString))
+    {
+        LogManager.GetCurrentClassLogger().Error("Missing connection string: ConnectionStrings:TasksDbConnectionString");
+    }
+    else
+    {
+        try
+        {
+            var csb = new Npgsql.NpgsqlConnectionStringBuilder(tasksDbConnectionString);
+            LogManager.GetCurrentClassLogger().Info("DB connection config: Host={Host} Port={Port} Database={Database} Username={Username}",
+                csb.Host,
+                csb.Port,
+                csb.Database,
+                csb.Username);
+        }
+        catch (Exception ex)
+        {
+            LogManager.GetCurrentClassLogger().Warn(ex, "Failed to parse TasksDbConnectionString.");
+        }
+    }
     builder.Services.AddDbContext<UserDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("TasksDbConnectionString"))
+        options.UseNpgsql(tasksDbConnectionString)
     );
 
     builder.Services
@@ -72,16 +93,42 @@ try
 
     builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
+    // Registers the required services
+    builder.Services.AddOpenApi();
+
+    var kestrelHttpsUrl = builder.Configuration["Kestrel:Endpoints:Https:Url"];
+    var kestrelCertPath = builder.Configuration["Kestrel:Endpoints:Https:Certificate:Path"];
+    var kestrelCertPassword = builder.Configuration["Kestrel:Endpoints:Https:Certificate:Password"];
+    builder.Logging.AddFilter("Microsoft.AspNetCore.Server.Kestrel", Microsoft.Extensions.Logging.LogLevel.Information);
+    Logger kestrelLogger = LogManager.GetCurrentClassLogger();
+    var kestrelCertFullPath = string.IsNullOrWhiteSpace(kestrelCertPath)
+        ? string.Empty
+        : Path.GetFullPath(kestrelCertPath);
+    var kestrelCertExists = !string.IsNullOrWhiteSpace(kestrelCertFullPath) && File.Exists(kestrelCertFullPath);
+    kestrelLogger.Info("Kestrel HTTPS config: Url={Url} CertPath={CertPath} CertPasswordConfigured={PasswordConfigured}",
+        kestrelHttpsUrl,
+        kestrelCertFullPath,
+        !string.IsNullOrWhiteSpace(kestrelCertPassword));
+    kestrelLogger.Info("Kestrel certificate file check: Exists={Exists}", kestrelCertExists);
+
     var app = builder.Build();
 
     // === MIDDLEWARE (keep your existing pipeline here) ===
     // global cors policy
-    app.UseCors(x => x
+    app.UseCors(x => 
 
-        .WithOrigins("http://172.20.5.149", "http://172.20.5.150")
+        x.SetIsOriginAllowed(origin =>
+                System.Text.RegularExpressions.Regex.IsMatch(origin, @"^http://192\.168\.\d{1,3}\.\d{1,3}(:\d+)?$"))
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials());
+
+    // Inside your application's startup code (e.g., Program.cs or Startup.cs)
+    //using (var scope = app.Services.CreateScope())
+    //{
+    //    var dbContext = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+    //    dbContext.Database.Migrate();
+    //}
 
     if (app.Environment.IsDevelopment())
     {
@@ -93,6 +140,8 @@ try
             options.HideClientButton = true;
         });
         app.MapOpenApi();
+
+        app.MapGet("/", () => Results.Redirect("/scalar/v1"));
     }
 
     // custom jwt auth middleware
@@ -101,6 +150,18 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
+
+    try
+    {
+        await using var scope = app.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<UserDbContext>();
+        var canConnect = await db.Database.CanConnectAsync();
+        LogManager.GetCurrentClassLogger().Info("Database connectivity check: CanConnect={CanConnect}", canConnect);
+    }
+    catch (Exception ex)
+    {
+        LogManager.GetCurrentClassLogger().Error(ex, "Database connectivity check failed.");
+    }
 
     LogManager.GetCurrentClassLogger().Info("Listening on: {Urls}", string.Join(";", app.Urls));
 

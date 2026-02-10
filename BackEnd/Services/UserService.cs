@@ -290,6 +290,7 @@ namespace Backend.Services
             // Validate password confirmation
             if (registerRequest.Password != registerRequest.ConfirmPassword)
             {
+                logger.Warn("RegisterAsync: Passwords do not match. email={Email}", registerRequest.Email);
                 return new RegisterResponse
                 {
                     Success = false,
@@ -303,6 +304,7 @@ namespace Backend.Services
             {
                 if (string.IsNullOrEmpty(registerRequest.PhoneNumber))
                 {
+                    logger.Warn("RegisterAsync: MFA requested but phone number missing. email={Email}", registerRequest.Email);
                     return new RegisterResponse
                     {
                         Success = false,
@@ -314,6 +316,7 @@ namespace Backend.Services
                 // Validate E.164 phone format
                 if (!registerRequest.PhoneNumber.StartsWith("+"))
                 {
+                    logger.Warn("RegisterAsync: Invalid phone format for MFA. email={Email}", registerRequest.Email);
                     return new RegisterResponse
                     {
                         Success = false,
@@ -329,6 +332,7 @@ namespace Backend.Services
 
             if (existingUser != null)
             {
+                logger.Info("RegisterAsync: User already exists. email={Email}", registerRequest.Email);
                 await SendAlreadyRegisteredEmail(registerRequest.Email, origin);
                 return new RegisterResponse
                 {
@@ -342,6 +346,7 @@ namespace Backend.Services
             var salt = PasswordHelper.GetSecureSalt();
             var passwordHash = PasswordHelper.HashUsingPbkdf2(registerRequest.Password, salt);
 
+            var isFirstAccount = tasksDbContext.Users.Count() == 0;
             // Create new user
             var user = new User
             {
@@ -355,7 +360,7 @@ namespace Backend.Services
                 Ts = registerRequest.Ts,
                 Created = DateTime.UtcNow,
                 Active = true,
-                Role = Role.User, // Explicitly set the role to User
+                Role = isFirstAccount ? Role.Admin : Role.User,
                 // MFA setup
                 PhoneNumber = registerRequest.PhoneNumber,
                 MfaEnabled = registerRequest.EnableMfa,
@@ -376,6 +381,7 @@ namespace Backend.Services
                 };
             }
 
+            logger.Error("RegisterAsync: Failed to persist new user. email={Email} saveResponse={SaveResponse}", registerRequest.Email, saveResponse);
             return new RegisterResponse
             {
                 Success = false,
@@ -391,6 +397,7 @@ namespace Backend.Services
 
             if (user == null)
             {
+                logger.Warn("VerifyEmail: Invalid verification token.");
                 return new VerifyEmailResponse
                 {
                     Success = false,
@@ -402,6 +409,7 @@ namespace Backend.Services
             // Optional: Verify DOB if provided for additional security
             if (!string.IsNullOrEmpty(request.Dob) && user.DOB != request.Dob)
             {
+                logger.Warn("VerifyEmail: DOB mismatch. userId={UserId}", user.Id);
                 return new VerifyEmailResponse
                 {
                     Success = false,
@@ -413,6 +421,7 @@ namespace Backend.Services
             // Check if already verified
             if (user.Verified.HasValue)
             {
+                logger.Info("VerifyEmail: Email already verified. userId={UserId}", user.Id);
                 return new VerifyEmailResponse
                 {
                     Success = false,
@@ -442,6 +451,7 @@ namespace Backend.Services
             // Always return success to prevent email enumeration
             if (user == null)
             {
+                logger.Info("ForgotPassword: User not found (enumeration-safe). email={Email}", request.Email);
                 return new ForgotPasswordResponse
                 {
                     Success = true,
@@ -452,6 +462,7 @@ namespace Backend.Services
             // Optional: Verify DOB if provided
             if (!string.IsNullOrEmpty(request.Dob) && user.DOB != request.Dob)
             {
+                logger.Info("ForgotPassword: DOB mismatch (enumeration-safe). email={Email}", request.Email);
                 return new ForgotPasswordResponse
                 {
                     Success = true,
@@ -482,6 +493,7 @@ namespace Backend.Services
 
             if (user == null)
             {
+                logger.Warn("ResetPassword: Invalid or expired reset token.");
                 return new ResetPasswordResponse
                 {
                     Success = false,
@@ -493,6 +505,7 @@ namespace Backend.Services
             // Check if token has expired
             if (user.ResetTokenExpires.HasValue && user.ResetTokenExpires.Value < DateTime.UtcNow)
             {
+                logger.Warn("ResetPassword: Reset token expired. userId={UserId}", user.Id);
                 return new ResetPasswordResponse
                 {
                     Success = false,
@@ -504,6 +517,7 @@ namespace Backend.Services
             // Validate password match
             if (request.Password != request.ConfirmPassword)
             {
+                logger.Warn("ResetPassword: Passwords do not match. userId={UserId}", user.Id);
                 return new ResetPasswordResponse
                 {
                     Success = false,

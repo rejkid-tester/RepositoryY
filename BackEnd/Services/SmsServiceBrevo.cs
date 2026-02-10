@@ -15,6 +15,9 @@ namespace BackEnd.Services
         private readonly string _brevoApiKey;
         private readonly string _sender;
 
+        private const string BrevoPayloadTraceTemplate = "Brevo payload kvp: {Key}={Value}";
+        private const string BrevoHeaderTraceTemplate = "Brevo header kvp: {Key}={Value}";
+
         public SmsServiceBrevo(HttpClient httpClient, ILogger<SmsServiceBrevo> logger, IConfiguration config)
         {
             _httpClient = httpClient;
@@ -29,6 +32,14 @@ namespace BackEnd.Services
                 ?? config["Brevo:BREVO_SENDER"]
                 ?? string.Empty).Trim();
 
+            _logger.LogTrace("Brevo config kvp: {Key}={Value}", "Brevo:BREVO_SENDER", _sender);
+            _logger.LogTrace("Brevo config kvp: {Key}={Value}", "Brevo:BREVO_API_KEY", string.IsNullOrWhiteSpace(_brevoApiKey) ? string.Empty : "<redacted>");
+
+            _logger.LogTrace("Brevo configuration loaded. SenderConfigured={SenderConfigured}, ApiKeyConfigured={ApiKeyConfigured}, ApiKeyLength={ApiKeyLength}",
+                !string.IsNullOrWhiteSpace(_sender),
+                !string.IsNullOrWhiteSpace(_brevoApiKey),
+                string.IsNullOrWhiteSpace(_brevoApiKey) ? 0 : _brevoApiKey.Length);
+
             if (string.IsNullOrWhiteSpace(_brevoApiKey))
                 _logger.LogWarning("Brevo ApiKey is missing (config key `Brevo:ApiKey`).");
 
@@ -38,6 +49,13 @@ namespace BackEnd.Services
             // Safe diagnostics: never log the api key, only length/prefix
             if (!string.IsNullOrWhiteSpace(_brevoApiKey))
                 _logger.LogInformation("Brevo ApiKey loaded (length={Length}).", _brevoApiKey.Length);
+
+            _logger.LogTrace("Brevo trace templates configured. PayloadTemplate='{PayloadTemplate}', HeaderTemplate='{HeaderTemplate}'",
+                BrevoPayloadTraceTemplate,
+                BrevoHeaderTraceTemplate);
+
+            _logger.LogTrace("Brevo request will include payload keys: sender, recipient, content(<redacted>), type");
+            _logger.LogTrace("Brevo request will include header keys: api-key(<redacted>), accept");
         }
 
         public async Task<bool> SendSmsAsync(string phoneNumber, string message)
@@ -47,6 +65,11 @@ namespace BackEnd.Services
                 _logger.LogWarning("Brevo credentials not configured.");
                 return false;
             }
+
+            _logger.LogTrace("Sending SMS via Brevo. Sender={Sender}, Recipient={Recipient}, MessageLength={MessageLength}",
+                _sender,
+                phoneNumber,
+                message?.Length ?? 0);
 
             var url = "https://api.brevo.com/v3/transactionalSMS/sms";
 

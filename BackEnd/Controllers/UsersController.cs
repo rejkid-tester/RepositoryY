@@ -4,6 +4,7 @@ using Backend.Requests;
 using Backend.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Backend.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Backend.Controllers
 {
@@ -13,11 +14,13 @@ namespace Backend.Controllers
     {
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
+        private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IUserService userService, ITokenService tokenService)
+        public UsersController(IUserService userService, ITokenService tokenService, ILogger<UsersController> logger)
         {
             _userService = userService;
             _tokenService = tokenService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -30,6 +33,7 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login(LoginRequest loginRequest)
         {
+            _logger.LogInformation("Login request started for {Email}", loginRequest.Email);
             if (!ModelState.IsValid)
             {
                 return BadRequest(new TokenResponse
@@ -54,7 +58,8 @@ namespace Backend.Controllers
             {
                 SetTokenCookie(loginResponse.RefreshToken);
             }
-            
+
+            _logger.LogInformation("Login successful for {Email}", loginRequest.Email);
             return Ok(loginResponse);
         }
 
@@ -64,12 +69,14 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetAllUsers()
         {
+            _logger.LogInformation("GetAllUsers request started. UserID={UserID}", UserID);
             if (user == null || user.Role != Role.Admin)
             {
                 return Forbid();
             }
 
             var users = await _userService.GetAllUsersAsync();
+            _logger.LogInformation("GetAllUsers successful. Count={Count}", users?.Count ?? 0);
             return Ok(users);
         }
 
@@ -79,6 +86,7 @@ namespace Backend.Controllers
         [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RefreshTokenFromCookie()
         {
+            _logger.LogInformation("RefreshToken request started.");
             var origin = Request.Headers["Origin"].ToString();
             var refreshToken = Request.Cookies["refreshToken"];
             var response = await _tokenService.RefreshTokenAsync(refreshToken, origin);
@@ -93,6 +101,7 @@ namespace Backend.Controllers
                 SetTokenCookie(response.RefreshToken);
             }
 
+            _logger.LogInformation("Refresh token successful.");
             return Ok(response);
         }
 
@@ -105,6 +114,7 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
+            _logger.LogInformation("ForgotPassword request started for {Email}", request.Email);
             var origin = Request.Headers["Origin"].ToString();
             var response = await _userService.ForgotPassword(request, origin);
 
@@ -113,6 +123,7 @@ namespace Backend.Controllers
                 return BadRequest(new { message = response.Error, errorCode = response.ErrorCode });
             }
 
+            _logger.LogInformation("ForgotPassword initiated successfully for {Email}", request.Email);
             return Ok(new { message = response.Message });
         }
 
@@ -125,6 +136,7 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
+            _logger.LogInformation("ResetPassword request started.");
             var response = await _userService.ResetPassword(request);
 
             if (!response.Success)
@@ -132,6 +144,7 @@ namespace Backend.Controllers
                 return BadRequest(new { message = response.Error, errorCode = response.ErrorCode });
             }
 
+            _logger.LogInformation("ResetPassword successful.");
             return Ok(new { message = response.Message });
         }
 
@@ -145,6 +158,7 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
         {
+            _logger.LogInformation("Register request started for {Email}", registerRequest.Email);
             var origin = Request.Headers["Origin"].ToString();
             var registerResponse = await _userService.RegisterAsync(registerRequest, origin);
 
@@ -153,6 +167,7 @@ namespace Backend.Controllers
                 return UnprocessableEntity(registerResponse);
             }
 
+            _logger.LogInformation("Register successful for {Email}", registerResponse.Email);
             return Ok(registerResponse.Email);
         }
 
@@ -167,6 +182,7 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> Logout()
         {
+            _logger.LogInformation("Logout request started. UserID={UserID}", UserID);
             var logoutResponse = await _userService.LogoutAsync(UserID);
 
             if (!logoutResponse.Success)
@@ -175,7 +191,8 @@ namespace Backend.Controllers
             }
 
             Response.Cookies.Delete("refreshToken");
-            
+
+            _logger.LogInformation("Logout successful for UserID={UserID}", UserID);
             return Ok(new { message = "Logged out successfully" });
         }
 
@@ -190,6 +207,7 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         public async Task<IActionResult> Info()
         {
+            _logger.LogInformation("Info request started. UserID={UserID}", UserID);
             var userResponse = await _userService.GetInfoAsync(UserID);
 
             if (!userResponse.Success)
@@ -197,6 +215,7 @@ namespace Backend.Controllers
                 return UnprocessableEntity(userResponse);
             }
 
+            _logger.LogInformation("Info successful for UserID={UserID}", UserID);
             return Ok(userResponse);
         }
 
@@ -207,13 +226,15 @@ namespace Backend.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail([FromBody] VerifyEmailRequest request)
         {
+            _logger.LogInformation("ConfirmEmail request started.");
             var response = await _userService.VerifyEmail(request);
             
             if (!response.Success)
             {
                 return BadRequest(new { message = response.Error, errorCode = response.ErrorCode });
             }
-            
+
+            _logger.LogInformation("ConfirmEmail successful for Token={Token}", request.Token);
             return Ok(new { message = response.Message });
         }
 
@@ -226,6 +247,7 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> VerifyMfa(VerifyMfaRequest request)
         {
+            _logger.LogInformation("VerifyMfa request started for {Email}", request.Email);
             var response = await _userService.VerifyMfaAsync(request);
 
             if (!response.Success)
@@ -238,6 +260,7 @@ namespace Backend.Controllers
                 SetTokenCookie(response.RefreshToken);
             }
 
+            _logger.LogInformation("VerifyMfa successful.");
             return Ok(response);
         }
 
@@ -248,7 +271,10 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> EnableMfa(EnableMfaRequest request)
         {
+            _logger.LogInformation("EnableMfa request started. UserID={UserID}", UserID);
             var response = await _userService.EnableMfaAsync(UserID, request);
+            if (response.Success)
+                _logger.LogInformation("EnableMfa successful for UserID={UserID}", UserID);
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
@@ -259,7 +285,10 @@ namespace Backend.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DisableMfa()
         {
+            _logger.LogInformation("DisableMfa request started. UserID={UserID}", UserID);
             var response = await _userService.DisableMfaAsync(UserID);
+            if (response.Success)
+                _logger.LogInformation("DisableMfa successful for UserID={UserID}", UserID);
             return response.Success ? Ok(response) : BadRequest(response);
         }
     }
