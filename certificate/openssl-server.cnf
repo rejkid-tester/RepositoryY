@@ -1,0 +1,19 @@
+[ req ]
+default_bits       = 2048
+prompt             = no
+default_md         = sha256
+distinguished_name = dn
+req_extensions     = req_ext
+
+[ dn ]
+CN = rejkid.local
+
+[ req_ext ]
+subjectAltName = @alt_names
+extendedKeyUsage = serverAuth
+keyUsage = digitalSignature, keyEncipherment
+
+[ alt_names ]
+DNS.1 = rejkid.local
+DNS.2 = backend.rejkid.local
+IP.1  = 192.168.0.15
